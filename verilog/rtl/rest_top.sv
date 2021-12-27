@@ -1,18 +1,3 @@
-/**
- * Copyright 2020 MERL
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 `define MPRJ_IO_PADS 38
 
 
@@ -63,9 +48,31 @@ module rest_top (
     output [2:0] user_irq
 );
 
-  assign io_oeb[6] = 1'b0;
-  assign io_oeb[5] = 1'b1;
-  assign io_oeb[8] = 1'b1;
+  assign io_oeb[6]     = 1'b0;
+  assign io_oeb[5]     = 1'b1;
+  assign io_oeb[8]     = 1'b1;
+  assign io_oeb[33:24] = 10'b1;
+  assign io_oeb[34]    = 1'b0;
+  
+  assign io_out[33:24] = 10'b0;
+  assign io_out[5]     = 1'b0;
+  assign io_out[8]     = 1'b0;
+  
+  logic rx;
+  logic tx;
+  
+  assign io_out[34] = tx;
+  assign io_oeb[37] = 1'b0;
+  assign io_oeb[34] = 1'b0;
+  assign io_out[6]  = tx;
+  
+  assign rx = io_in[35] ? io_in[5] : io_in[36];
+  
+  assign io_oeb[35] = 1'b1;
+  assign io_out[35] = 1'b0;
+  assign io_oeb[36] = 1'b1;
+  assign io_out[36] = 1'b0;
+  
 azadi_soc_top u_soc(
 `ifdef USE_POWER_PINS
    .vccd1	(),
@@ -74,12 +81,16 @@ azadi_soc_top u_soc(
   .clk_i	(wb_clk_i),
   .rst_ni	(~wb_rst_i),
   .prog		(io_in[8]),
+  .d_up		(io_out[37]),
+  .uart_init    (io_in[32]),
+  .uart_init_rx (io_in[33]),
+  .baud_sel     (io_in[31:24]),
   
   .clks_per_bit	(la_data_in[15:0]), 
 
   // uart-periph interface
-  .uart_tx	(io_out[6]),
-  .uart_rx	(io_in[5])
+  .uart_tx	(tx),
+  .uart_rx	(rx)
 
 );
 
