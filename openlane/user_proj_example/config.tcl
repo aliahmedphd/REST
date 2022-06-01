@@ -13,6 +13,9 @@
 # limitations under the License.
 # SPDX-License-Identifier: Apache-2.0
 
+set ::env(PDK) "sky130A"
+set ::env(STD_CELL_LIBRARY) "sky130_fd_sc_hd"
+
 set script_dir [file dirname [file normalize [info script]]]
 
 set ::env(DESIGN_NAME) user_proj_example
@@ -39,7 +42,10 @@ set ::env(PL_TARGET_DENSITY) 0.05
 # This is because this macro will be inserted in a top level (user_project_wrapper) 
 # where the PDN is planned on metal 5. So, to avoid having shorts between routes
 # in this macro and the top level metal 5 stripes, we have to restrict routes to metal4.  
-set ::env(GLB_RT_MAXLAYER) 5
+# 
+# set ::env(GLB_RT_MAXLAYER) 5
+
+set ::env(RT_MAX_LAYER) {met4}
 
 # You can draw more power domains if you need to 
 set ::env(VDD_NETS) [list {vccd1}]
